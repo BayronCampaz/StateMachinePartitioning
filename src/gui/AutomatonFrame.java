@@ -116,7 +116,7 @@ public class AutomatonFrame extends JFrame {
 			
 			//Conexion con clase principal debe devolver una matriz 
 			//Hay que ver a cual maquina hay que enviar
-			automaton.fillGraph(matrix, currentMachine);
+			automaton.getMinimumConnectedAutomaton(matrix, currentMachine, initialState);
 			// Luego pasar esa matriz al panel encargado de mostrarlo
 			
 			

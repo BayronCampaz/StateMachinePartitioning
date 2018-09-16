@@ -2,6 +2,7 @@ package gui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Label;
 import java.awt.event.ActionEvent;
@@ -12,6 +13,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import javax.swing.border.TitledBorder;
 
 public class CreationPanel extends JPanel  {	
@@ -103,6 +105,9 @@ public class CreationPanel extends JPanel  {
 		for(int i = 0; i< matrix.length; i++) {
 			for(int j = 0; j < matrix[0].length; j++) {	
 				matrix[i][j] = new JTextField();
+				Font font = new Font("Arial", Font.BOLD, 35 - (Math.max(matrix.length , matrix[0].length)));
+				matrix[i][j].setFont(font);
+				matrix[i][j].setHorizontalAlignment(SwingConstants.CENTER);
 				panelMatrix.add(matrix[i][j]);					
 			}
 		}

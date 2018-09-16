@@ -116,6 +116,9 @@ public class GrafoListaAdyacencia<K, V> implements InterfazGrafo<K, V> {
 	public Vertice getVertice(K key) {
 		return (Vertice) verticesMap.get(key);
 	}
+	
+
+	
 	/**
 	 * Realiza el recorrido por amplitud
 	 * @param keyInicial-clave del vertice de inicio
@@ -151,6 +154,50 @@ public class GrafoListaAdyacencia<K, V> implements InterfazGrafo<K, V> {
 			verActual.setColor(Vertice.BLACK);
 		}
 	}
+	
+	/**
+	 * Realiza el recorrido por amplitud
+	 * @param keyInicial-clave del vertice de inicio
+	 */
+
+	public ArrayList<K> BFS2(K keyInicial) {
+		@SuppressWarnings("unchecked")
+		K[] listaClaves = (K[]) verticesMap.keySet().toArray();
+		for (int i = 0; i < listaClaves.length; i++) {
+			((Vertice) verticesMap.get(listaClaves[i])).setColor(Vertice.WHITE);
+			((Vertice) verticesMap.get(listaClaves[i])).setDistancia(Vertice.INFINITO);
+			((Vertice) verticesMap.get(listaClaves[i])).setPadre(null);
+		}
+		Vertice vertInicial = (Vertice) verticesMap.get(keyInicial);
+		vertInicial.setColor(Vertice.GRAY);
+		vertInicial.setDistancia(0);
+
+		Queue<Vertice> cola = new LinkedList<>();
+		cola.offer(vertInicial);
+
+		ArrayList response = new ArrayList();
+		response.add(vertInicial.getKey());
+		
+		while (!cola.isEmpty()) {
+			Vertice verActual = cola.poll();
+			ArrayList<Pareja> listaAdya = verActual.getAdy();
+			for (int i = 0; i < listaAdya.size(); i++) {
+				Vertice verticeAdy = listaAdya.get(i).getVertice();
+				if (verticeAdy.getColor() == Vertice.WHITE) {
+					verticeAdy.setColor(Vertice.GRAY);
+					response.add(verticeAdy.getKey());
+					verticeAdy.setDistancia(verActual.getDistancia() + 1);
+					verticeAdy.setPadre(verActual);
+					cola.offer(verticeAdy);
+				}
+			}
+			verActual.setColor(Vertice.BLACK);
+		}
+		
+		return response;
+	}
+	
+	
     /**
      * Devuelve el camino mas corte entre dos vertices
      * @param inicio-vertice de inicio
@@ -487,6 +534,7 @@ public class GrafoListaAdyacencia<K, V> implements InterfazGrafo<K, V> {
 		}
 		return caminos;
 	}
+	
 
 	public static ArrayList getA() {
 		return a;

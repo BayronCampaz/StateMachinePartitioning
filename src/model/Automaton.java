@@ -1,6 +1,8 @@
 package model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Set;
 
 import listaAdyacencia.GrafoListaAdyacencia;
 import listaAdyacencia.Vertice;
@@ -8,9 +10,41 @@ import listaAdyacencia.Vertice;
 public class Automaton {
 	GrafoListaAdyacencia graph = new GrafoListaAdyacencia<>(true);
 
-	public GrafoListaAdyacencia getGraph() {
+	public GrafoListaAdyacencia<String,String> getGraph() {
 		return graph;
 	}
+	
+	public String[][] getMinimumConnectedAutomaton(String[][] matrix, boolean isMealy, String initialState){
+		
+		String[][] response = null;
+		
+		fillGraph(matrix, isMealy);	
+		connectedStateMachine(initialState);
+		
+		return null;
+		
+	}
+	
+	public void connectedStateMachine(String initialState) {
+		
+		ArrayList<String> connectedVertices =  (ArrayList<String>) graph.BFS2(initialState);
+
+		HashMap vertices = graph.getVerticesMap();
+		Set keys1 = vertices.keySet();
+		ArrayList keys = new ArrayList<>();
+		keys.addAll(keys1);
+					
+		for(int i = 0; i < vertices.size(); i++) {		
+			
+			Vertice v = graph.getVertice(keys.get(i));
+			if(!connectedVertices.contains(v.getKey())) {
+				
+				graph.removerVertice(v.getKey());
+			}
+		}
+		
+	}
+	
 
 	public void fillGraph(String[][] matrixInf, boolean isMealy) {
 		if (isMealy) {
@@ -89,22 +123,6 @@ public class Automaton {
 			}
 
 		}
-	}
-	
-	public void connectedStateMachine() {
-		
-		//Supongo que el grafo ya esta lleno
-		
-		
-	}
-	
-
-	
-	
-
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-
 	}
 
 }
