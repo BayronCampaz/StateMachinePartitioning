@@ -27,7 +27,7 @@ public class CreationPanel extends JPanel  {
 		
 		setLayout( new BorderLayout(10,10) );
         //Establece el tamaño del layout  
-		 setPreferredSize( new Dimension( 0, 200) );
+		setPreferredSize( new Dimension( 0, 200) );
 		 
 		//Adiciona un marco con titulo
 	      
@@ -48,7 +48,14 @@ public class CreationPanel extends JPanel  {
 	}
 	
 	
-	//Hacer excepciones aqui
+	public String[] getInputs() {
+		
+		String[] response = new String[matrix[0].length-2];
+		for(int i = 1; i< matrix[0].length-1; i++) {
+			response[i-1] = matrix[0][i].getText();
+		}
+		return response;
+	}
 	
 	public String[][] getMatrix() throws EmptyFieldException, NotFoundInitialStateException {
 		
@@ -116,7 +123,7 @@ public class CreationPanel extends JPanel  {
 		
 		if(moore) {
 			matrix[0][matrix[0].length-1].setEnabled(false);
-			matrix[0][matrix[0].length-1].setVisible(false);;
+			matrix[0][matrix[0].length-1].setVisible(false);
 		}
 		
 		add(panelMatrix, BorderLayout.CENTER);

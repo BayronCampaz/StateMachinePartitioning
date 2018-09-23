@@ -20,31 +20,26 @@ public class AutomatonFrame extends JFrame {
 	private ImagePanel imagePanel;
 	private CreationOptionPanel creationOptionPanel;
 	private CreationPanel creationPanel;
+	private ResponsePanel responsePanel;
 	private Automaton automaton;
-	private boolean currentMachine; //True=Mealy - False = Moore
+	private boolean currentMachine; //True = Mealy - False = Moore
 	
 	
 	public AutomatonFrame() {
 		
-		setTitle( "Automata Minimo Equivalente" );
-        setSize( new Dimension(1100, 750 ));
-        automaton = new Automaton();
+		setTitle( "ACME" );
+        setSize( new Dimension(1100, 720 ));
+        //automaton = new Automaton();
         
-        //Color JFrame
-     //   this.getContentPane().setBackground(Color.WHITE);
 
-      
         setResizable( false);
         setDefaultCloseOperation( EXIT_ON_CLOSE );
-        setLayout( new BorderLayout( ) );
+        setLayout( new BorderLayout(20,20 ) );
         
         imagePanel = new ImagePanel();
         creationOptionPanel = new CreationOptionPanel(this);
         creationPanel = new CreationPanel();
-        
-        //Color JPanel
-    //    creationPanel.setBackground(Color.WHITE);
-    //    creationOptionPanel.setBackground(Color.WHITE);
+        responsePanel = new ResponsePanel();
         
         add(imagePanel, BorderLayout.NORTH);
         
@@ -56,7 +51,7 @@ public class AutomatonFrame extends JFrame {
         JPanel auxPanel2 = new JPanel();
         auxPanel2.setLayout(new GridLayout(1,2));
         auxPanel2.add(auxPanel);
-        auxPanel2.add(new JLabel(""));
+        auxPanel2.add(responsePanel);
         
         add(auxPanel2, BorderLayout.CENTER);
 
@@ -69,7 +64,7 @@ public class AutomatonFrame extends JFrame {
 		(null, "Digite el numero de estados", "Numero de estados", JOptionPane.INFORMATION_MESSAGE));
 		
 		int columns = Integer.parseInt(JOptionPane.showInputDialog
-		(null, "Digite el numero de simbolos del alfabeto de entrada", "Numero de estados", JOptionPane.INFORMATION_MESSAGE));
+		(null, "Digite el numero de simbolos del alfabeto de entrada", "Numero de entradas", JOptionPane.INFORMATION_MESSAGE));
 		
 		if (rows > 15 || columns > 15 ) {
 			JOptionPane.showMessageDialog(null, "El maximo de estados y simbolos del alfabeto es 15 ", "Error", JOptionPane.ERROR_MESSAGE);
@@ -91,7 +86,7 @@ public class AutomatonFrame extends JFrame {
 		(null, "Digite el numero de estados", "Numero de estados", JOptionPane.INFORMATION_MESSAGE));
 		
 		int columns = Integer.parseInt(JOptionPane.showInputDialog
-		(null, "Digite el numero de simbolos del alfabeto de salida", "Numero de estados", JOptionPane.INFORMATION_MESSAGE));
+		(null, "Digite el numero de simbolos del alfabeto de entrada", "Numero de entradas", JOptionPane.INFORMATION_MESSAGE));
 		
 		if (rows > 15 || columns > 15 ) {
 			JOptionPane.showMessageDialog(null, "El maximo de estados y simbolos del alfabeto es 15 ", "Error", JOptionPane.ERROR_MESSAGE);
@@ -113,11 +108,14 @@ public class AutomatonFrame extends JFrame {
 		
 			String initialState = creationPanel.getInitialState();
 			String[][] matrix = creationPanel.getMatrix();
-			
+			String[] inputs = creationPanel.getInputs();
+
+			automaton = new Automaton(currentMachine, inputs, matrix, initialState);
 			//Conexion con clase principal debe devolver una matriz 
-			//Hay que ver a cual maquina hay que enviar
-			automaton.getMinimumConnectedAutomaton(matrix, currentMachine, initialState);
-			// Luego pasar esa matriz al panel encargado de mostrarlo
+			
+			String[][] newStatesTable = automaton.getMinimumConnectedAutomaton();
+			responsePanel.showTableState(newStatesTable, !automaton.isMealy());
+			validate();
 			
 			
 		} catch (EmptyFieldException e) {

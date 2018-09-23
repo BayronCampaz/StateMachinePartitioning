@@ -9,8 +9,8 @@ public class Tests {
 		// TODO Auto-generated method stub
 		String[][] mTest = { {" ", "a"} , {"AC" , "BC1"}, { "BC" , "B1" }, {"CC", "A0"}};
 		
-		Automaton automaton = new Automaton();
-		automaton.fillMealy(mTest);
+	//	Automaton automaton = new Automaton();
+	//	automaton.fillMealy(mTest);
 		String[][] mRepresentation = null;
 		//automaton.getGraph().darRepresentacionMatriz2();
 		

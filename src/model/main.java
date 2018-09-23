@@ -11,7 +11,7 @@ import listaAdyacencia.Vertice;
 public class main {
 
 	public static void main(String[] args) {
-		Automaton aut = new Automaton();
+	//	Automaton aut = new Automaton();
 
 	String[][] matrix = new String[4][4];
 //		matrix[0][0] = "@";
@@ -56,10 +56,10 @@ public class main {
 		 matrix[3][2] = "C";
 		 matrix[3][3] = "0";
 		
-		 aut.fillMoore(matrix);
+		// aut.fillMoore(matrix);
 
 		GrafoListaAdyacencia graph = new GrafoListaAdyacencia<>(true);
-		graph = aut.getGraph();
+		//graph = aut.getGraph();
 		HashMap vertices = graph.getVerticesMap();
 		Set keys1 = vertices.keySet();
 		ArrayList keys = new ArrayList<>();

@@ -43,9 +43,12 @@ public class CreationOptionPanel extends JPanel implements ActionListener {
 		reducedMachine.setActionCommand(EQUIVALENT_REDUCED_MACHINE);
 		reducedMachine.addActionListener(this);
 		reducedMachine.setBackground(Color.WHITE);
+		reducedMachine.setEnabled(false);
 		add(reducedMachine);
 	}
 
+
+	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
@@ -54,10 +57,12 @@ public class CreationOptionPanel extends JPanel implements ActionListener {
 		if(comando.equals(CREATE_MEALY_MACHINE)) {
 			
 			mainFrame.createMealyMachine();
+			reducedMachine.setEnabled(true);
 			
 		}else if(comando.equals(CREATE_MOORE_MACHINE)) {
 			
 			mainFrame.createMooreMachine();
+			reducedMachine.setEnabled(true);
 			
 		}else if(comando.equals(EQUIVALENT_REDUCED_MACHINE)) {
 			
