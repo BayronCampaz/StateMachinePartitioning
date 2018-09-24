@@ -8,29 +8,62 @@ import listaAdyacencia.GrafoListaAdyacencia;
 import listaAdyacencia.Pareja;
 import listaAdyacencia.Vertice;
 
+/**
+ * @author bayro
+ *
+ */
+/**
+ * @author bayro
+ *
+ */
 public class Automaton {
 	
-	private GrafoListaAdyacencia graph = new GrafoListaAdyacencia<>(true);
+	/**
+	 * Grafo dirigido que modela un automata
+	 */
+	private GrafoListaAdyacencia graph;
+	/**
+	 * Variable que establece si el automata es de Mealy o de Moore
+	 */
 	private boolean isMealy;
+	
+	/**
+	 * Entradas del automata
+	 */
 	private String[] inputs;
+	
+	/**
+	 * Tabla de estado del automata
+	 */
 	private String[][] stateTable;
+	
+	/**
+	 * Estado inicial del automata
+	 */
 	private String initialState;
 	
 
+	/**
+	 * 
+	 * @param isMealy: Indica si el automata es de Mealy
+	 * @param inputs : Entradas del automata
+	 * @param stateTable : tabla de estado del automata
+	 * @param initialState : Estaado inicial del automata
+	 */
 	public Automaton(boolean isMealy, String[] inputs, String[][] stateTable, String initialState) {
 		super();
+		graph = new GrafoListaAdyacencia<>(true);
 		this.isMealy = isMealy;
 		this.inputs = inputs;
 		this.stateTable = stateTable;
 		this.initialState = initialState;
 	}
 
-	public GrafoListaAdyacencia<String,String> getGraph() {
-		return graph;
-	}
-	
-
-	
+	/**
+	 * Metodo para renombrar estados y generar tabla de estado final de un automata de Moore
+	 * @param partitioning Arreglo que contiene el particionamiento 
+	 * @return Tabla de estado del automata conexo minimo equivalente.
+	 */
 	private String[][] combineStatesMoore(ArrayList<ArrayList<String>> partitioning) {
 		
 		String[][] statesTable = new String[partitioning.size()+1][inputs.length+2];
@@ -59,8 +92,11 @@ public class Automaton {
 		}
 		
 		int l = 1;
+		int r = 1;
 		for(ArrayList<String> partition : partitioning) {
 			
+			statesTable[r][0] = partition.get(partition.size()-1);
+			r++;
 			ArrayList<Pareja> adjacents =  graph.getVertice(partition.get(0)).getAdy();
 			for(int i = 0; i < adjacents.size(); i++) {
 				for(int j = 1; j< statesTable[0].length-1; j++)
@@ -82,184 +118,104 @@ public class Automaton {
 		return statesTable;
 	}
 	
+	/**
+	 * Metodo para renombrar estados y generar tabla de estado final de un automata de Mealy
+	 * @param partitioning Arreglo que contiene el particionamiento 
+	 * @return Tabla de estado del automata conexo minimo equivalente.
+	 */
 	private String[][] combineStatesMealy(ArrayList<ArrayList<String>> partitioning) {
-		String[][] statesTable = new String[partitioning.size()][inputs.length];
+		String[][] statesTable = new String[partitioning.size() + 1 ][inputs.length+1];
+		
+		String basedName = "|Q";
+		
+		for(int i = 1; i < statesTable[0].length; i++ ) {
+			statesTable[0][i] = inputs[i-1];
+		}
+		
+		for(int i = 1; i < statesTable.length; i++ ) {
+			statesTable[i][0] = basedName + i + "|";
+		}
+		
+		int k = 2;
+		for(ArrayList partition : partitioning) {
+			
+			if(partition.contains(initialState)) {						
+				partition.add("|Q1|");
+			}
+			else {
+				String rename ="|Q"+ k + "|"; 
+				partition.add(rename);
+				k++;		
+			}	
+			
+		}
+			
+			for(int i = 0; i< partitioning.size(); i++) {
+				ArrayList<String> partition = partitioning.get(i);
+				
+				//La i indica la particion y la i+1 la fila en la nueva tabla de estados
+				statesTable[i+1][0] = partition.get(partition.size()-1);
+				
+				String statePartition = partition.get(0);
+				
+				// S indica la posicion del estado en la tabla de estado original
+				int s = 0;
+				for(int j = 1; j< stateTable.length; j++) {
+					if(stateTable[j][0].equals(statePartition)) {
+						s = j;
+					}
+				}
+				
+				for(int j = 1; j < stateTable[0].length; j++ ) {
+					
+					String adjacentState = stateTable[s][j].split(",")[0];
+					String response = stateTable[s][j].split(",")[1];
+					
+					for(ArrayList<String> partition2 : partitioning) {
+						if(partition2.contains(adjacentState)) {
+							statesTable[i+1][j] = partition2.get(partition2.size()-1) + " , " + response;
+						}
+					}
+				}
+			}
+		
+		
+		
+		
+		
 		return statesTable;
 	}
 
-	
+	/**
+	 * Da el definitivo automata equivalente
+	 * @return Tabla de estado del automata conexo minimo equivalente
+	 */
 	public String[][] getMinimumConnectedAutomaton(){
 		
 		String[][] response = null;
 		
 		fillGraph(stateTable, isMealy);	
+		try {
 		connectedStateMachine();
+		}catch(Exception e) {
+			
+		}
 		
-		
-		//partitioning();
-		//Para cuestiones de ejemplificacion
-		
-		/*ArrayList<ArrayList<String>> partitioning = new ArrayList<ArrayList<String>>();
-		
-		ArrayList<String> p1 = new ArrayList<String>(); p1.add("A"); p1.add("C");
-		ArrayList<String> p2 = new ArrayList<String>(); p2.add("B"); p2.add("D");
-		ArrayList<String> p3 = new ArrayList<String>(); p3.add("E"); p3.add("F"); p3.add("G");
+		ArrayList<ArrayList<String>> partitioning = partition();
 
-		
-		partitioning.add(p1);
-		partitioning.add(p2);
-		partitioning.add(p3);
-
-		*/
-		
-
-		//AQUI SE LLAMA AL PARTICIONAMIENTO Y SE LE ENVIA A COMBINE STATES ya a sea MOORE o MEALY
-	//	response = combineStatesMoore(partitioning);
-		
-	/*	for (int x=0; x < response.length; x++) {
-			  System.out.print("|");
-			  for (int y=0; y < response[x].length; y++) {
-			    System.out.print (response[x][y]);
-			    if (y!=response[x].length-1) System.out.print("\t");
-			  }
-			  System.out.println("|");
-			}*/
-		
-		return response;
-		
-	}
-	
-	public ArrayList<ArrayList<String>> partitioning () {
-		
-		ArrayList<ArrayList<String>> response = new ArrayList<ArrayList<String>>();
-		
-		HashMap vertices = graph.getVerticesMap();
-		Set keys1 = vertices.keySet();
-		ArrayList keys = new ArrayList<>();
-		keys.addAll(keys1);
-		
-		ArrayList<String> diferentsResponses = new ArrayList<String>();
-		
-		for(int i = 0; i < vertices.size(); i++) {					
-			Vertice v = graph.getVertice(keys.get(i));
-			if(!diferentsResponses.contains(v.getValor())) {
-				ArrayList<String> newPartition = new ArrayList<String>();
-				newPartition.add((String)v.getKey());
-				response.add(newPartition);
-				diferentsResponses.add((String) v.getValor());
+		if(isMealy) {
+			response = combineStatesMealy(partitioning);
 			}else {
-				
-				for(int j = 0; j< response.size(); j++) {										
-						if(graph.getVertice(response.get(j).get(0)).getValor().equals(v.getValor())){
-							response.get(j).add((String)v.getKey());
-						}		
-				}
-			}	
-		}	
-		
-		boolean change = true;
-		
-		while (change) {
-			
-			change = false;	
-			
-			ArrayList<ArrayList<String>> partitions = response;
-			
-		    //Recorrido para cada particion
-			for(int i = 0; i< response.size(); i++) {
-				
-				ArrayList<String> partition = response.get(i);
-				ArrayList<String> recentlyRemoved = new ArrayList<String>();
-				
-		       	
-				Vertice vertex1 = graph.getVertice(partition.get(0));
-				// Recorrrido para cada vertice	
-				for(int j = 1; j < partition.size(); j++) {
-					
-					
-					// Recorrido para hacer comparacion para cada simbolo de entrada
-					for(int k = 0; k< vertex1.getAdy().size(); k++) {
-						
-						Vertice vertex2 = graph.getVertice(partition.get(j));
-						
-						Pareja pair1 = (Pareja)  vertex1.getAdy().get(k);
-						Pareja pair2 = (Pareja)  vertex2.getAdy().get(k);
-
-						boolean end = false;
-						// Recorrido para encontrar en que grupo esta su adyacente enlazado a determinado simbolo de entrada
-						for(int l = 0; l<response.size() && !end; l++) {
-							if(response.get(l).contains(pair1.getVertice().getKey())) {
-								end = true;
-								if(!response.get(l).contains(pair2.getVertice().getKey())) {
-									change = true;
-									recentlyRemoved.add((String)vertex2.getKey());
-									partitions.get(i).remove((String)vertex2.getKey());
-								}
-							}
-						}
-					}
-								
-				}
-				
-				//Hacer codigo aqui para el manejo de los que removi y estan en los eliminados recientemente
-				ArrayList<ArrayList<String>> toAdd = new ArrayList<ArrayList<String>>();
-				
-				while(!recentlyRemoved.isEmpty()) {
-					
-				ArrayList<String> newPartition = new ArrayList<String>();
-				Vertice vertex3 = graph.getVertice(recentlyRemoved.get(0));
-				newPartition.add(recentlyRemoved.get(0));
-				recentlyRemoved.remove(0);
-				
-				for(int m = 1; m < recentlyRemoved.size(); m++) {
-					
-					
-					boolean areDifferentsPartitions = false;
-					// Recorrido para hacer comparacion para cada simbolo de entrada entre los que quite
-					for(int k = 0; k < vertex3.getAdy().size(); k++) {
-						
-						Vertice vertex4 = graph.getVertice(recentlyRemoved.get(m));
-						
-						Pareja pair1 = (Pareja)  vertex3.getAdy().get(k);
-						Pareja pair2 = (Pareja)  vertex4.getAdy().get(k);
-
-						boolean end = false;
-						// Recorrido para encontrar en que grupo esta su adyacente enlazado a determinado simbolo de entrada
-						for(int l = 0; l<response.size() && !end; l++) {
-							if(response.get(l).contains(pair1.getVertice().getKey())) {
-								end = true;
-								if(!response.get(l).contains(pair2.getVertice().getKey())) {
-									change = true;
-									areDifferentsPartitions = true;									
-									
-								}
-							}
-						}
-						
-					}
-					
-					if(!areDifferentsPartitions) {
-						newPartition.add(recentlyRemoved.get(m));
-						recentlyRemoved.remove(recentlyRemoved.get(m));
-					}else {
-						toAdd.add(newPartition);
-					}
-					
-				}
-				
-				
-				
-				}
-				partitions.addAll(toAdd);
-			}
-			
-			response = partitions;
-		}		
+			response = combineStatesMoore(partitioning);
+		}
 		return response;
+		
 	}
 	
-
 	
+	/**
+	 * Modifica el automata asegurando que este se a conexo
+	 */
 	public void connectedStateMachine() {
 		
 		ArrayList<String> connectedVertices =  (ArrayList<String>) graph.BFS2(initialState);
@@ -289,37 +245,63 @@ public class Automaton {
 		}
 	}
 
+
 	public void fillMealy(String[][] matrixInf) {
-		
-		for (int i = 1; i < matrixInf.length; i++) {
-			
-			String response = "";
-			for(int j = 1; j < matrixInf[0].length && i != 0 ; j++) {
-				response += matrixInf[i][j].split(",")[1];
-				if(!(j == matrixInf[0].length-1)) {
-					response += ",";
-				}
-			}			
-			Vertice<String, String> vtoAdd = new Vertice<String,String>(matrixInf[i][0]);
-			vtoAdd.setValor(response);
-			graph.anadirVertice(vtoAdd);
+
+		ArrayList transitions = new ArrayList<>();
+		ArrayList state = new ArrayList<>();
+		for (int i = 0; i < matrixInf[0].length; i++) {
+
+			transitions.add(matrixInf[0][i]);
 		}
-		
+
+		for (int i = 0; i < matrixInf.length; i++) {
+
+			state.add(matrixInf[i][0]);
+		}
+		ArrayList<String> answers = new ArrayList<String>();
+
 		for (int i = 1; i < matrixInf.length; i++) {
 			for (int j = 1; j < matrixInf[0].length; j++) {
-				
-				String anotherVertex = matrixInf[i][j].split(",")[0];
-				graph.anadirArista1(matrixInf[i][0], anotherVertex, 0, matrixInf[0][j]);
-				
-			}		
-		}		
+				String aswer = matrixInf[i][j].split(",")[1];
+				if (!answers.contains(aswer)) {
+					answers.add(aswer);
+				}
 
+			}
+		}
+
+		boolean flat = true;
+		for (int i = 1; i < matrixInf.length; i++) {
+			for (int j = 0; j < answers.size(); j++) {
+
+				String nameState = (String) state.get(i) + "," + answers.get(j);
+				Vertice<String, String> vtoAdd = new Vertice<String, String>(nameState);
+				vtoAdd.setValor(answers.get(j) + "");
+				if (flat) {
+					vtoAdd.setInitial(true);
+					flat = false;
+				}
+				graph.anadirVertice(vtoAdd);
+
+			}
+		}
+
+		for (int i = 1; i < matrixInf.length; i++) {
+			for (int j = 0; j < answers.size(); j++) {
+				String nameState = (String) state.get(i) + "," + answers.get(j);
+				for (int k = 1; k < matrixInf[0].length; k++) {
+					graph.anadirArista1(nameState, matrixInf[i][k], 0, matrixInf[0][k]);
+				}
+
+			}
+		}
 	}
 
 	public void fillMoore(String[][] matrixInf) {
 		ArrayList transitions = new ArrayList<>();
 		ArrayList state = new ArrayList<>();
-		ArrayList answer = new ArrayList<>();
+		ArrayList answers = new ArrayList<>();
 
 		for (int i = 0; i < matrixInf[0].length - 1; i++) {
 
@@ -329,7 +311,7 @@ public class Automaton {
 		for (int i = 0; i < matrixInf.length; i++) {
 
 			state.add(matrixInf[i][0]);
-			answer.add(matrixInf[i][matrixInf[0].length - 1]);
+			answers.add(matrixInf[i][matrixInf[0].length - 1]);
 		}
 
 		boolean flat = true;
@@ -337,9 +319,9 @@ public class Automaton {
 
 			String nameState = (String) state.get(i);
 			Vertice<String, String> vtoAdd = new Vertice<String, String>(nameState);
-			vtoAdd.setValor(answer.get(i) + "");
+			vtoAdd.setValor(answers.get(i) + "");
 			if (flat) {
-				//vtoAdd.setInitial(true);
+				vtoAdd.setInitial(true);
 				flat = false;
 			}
 			graph.anadirVertice(vtoAdd);
@@ -351,12 +333,165 @@ public class Automaton {
 				String nameState = (String) state.get(i);
 
 				graph.anadirArista1(nameState, matrixInf[i][j], 0, matrixInf[0][j]);
-				
 			}
 
 		}
 	}
 
+	public ArrayList partition() {
+		// Sera el arreglo general que contiene los arreglos tipo particion.
+		ArrayList<ArrayList> generalArray = new ArrayList<ArrayList>();
+
+		// Obtengo la lista de llaves de los vertices en el grafo es decir
+		// obtengo los estados
+		HashMap vertices = graph.getVerticesMap();
+		Set keys1 = vertices.keySet();
+		ArrayList keys = new ArrayList<>();
+		keys.addAll(keys1);
+		int numberTransition = (int) graph.getVertice(keys.get(0)).getAdy().size();
+		ArrayList<String> transitions = new ArrayList<String>();
+		for (int i = 0; i < numberTransition; i++) {
+			transitions.add((String) ((Pareja) graph.getVertice(keys.get(0)).getAdy().get(i)).getID());
+		}
+		// Lista de respuestas de los estados
+		ArrayList<String> listAswers = new ArrayList<String>();
+		// guarda la cantidad de respuestas de los estados
+		for (int i = 0; i < keys.size(); i++) {
+			// Respuesta actual
+			String aswer = (String) graph.getVertice(keys.get(i)).getValor();
+
+			if (!listAswers.contains(aswer)) {
+				listAswers.add(aswer);
+			}
+
+		}
+		listAswers.sort((e1, e2) -> e1.compareTo(e2));
+		// Particion
+		boolean partEqual = true;
+
+		ArrayList<ArrayList> partition = new ArrayList<ArrayList>();
+		// Define la primera particion
+		for (int i = 0; i < listAswers.size(); i++) {
+			ArrayList<String> listEquivalent = new ArrayList<String>();
+			// Designa los bloques segun su respuesta
+			for (int j = 0; j < keys.size(); j++) {
+
+				String aswer = (String) graph.getVertice(keys.get(j)).getValor();
+				if (aswer.equals(listAswers.get(i))) {
+					listEquivalent.add((String) graph.getVertice(keys.get(j)).getKey());
+				}
+			}
+			partition.add(listEquivalent);
+
+		}
+		generalArray.add(partition);
+		// Particiona para p2 en adelante
+		while (partEqual) {
+			// Nueva particion
+			ArrayList<ArrayList> partition1 = new ArrayList<ArrayList>();
+			// particion anterior
+			ArrayList<ArrayList> beforePart = generalArray.get(generalArray.size() - 1);
+			generalArray.add(partition1);
+			// nivel bloques de una particion
+			for (int i = 0; i < beforePart.size(); i++) {
+				// Sirve para guardar temporalmente los valores que se van a
+				// retirar de este bloque
+				ArrayList<String> aux = new ArrayList<String>();
+				ArrayList listEquivalent = beforePart.get(i);
+				if (listEquivalent.size() > 1) {
+					// Elementos de un bloque
+					for (int j = 1; j < listEquivalent.size(); j++) {
+						// La idea es compartar el primer elemento con lo demas
+						// para definir quien permananece y quien se va
+						Vertice first = graph.getVertice(listEquivalent.get(0));
+						Vertice anyOther = graph.getVertice(listEquivalent.get(j));
+						// Se compararan segun sus transiciones
+						// nivel adyacentes a los vertices
+						for (int k = 0; k < transitions.size(); k++) {
+							String keyPair = (String) ((Pareja) first.getAdy().get(k)).getVertice().getKey();
+							String keyPair1 = (String) ((Pareja) anyOther.getAdy().get(k)).getVertice().getKey();
+							// Necesito verificar si estas dos pertenecen al
+							// mismo bloque si es asi no pasa nada, de lo
+							// contrario lo debo cambiar de bloque
+							int numReject = 0;
+							// Para decidir si sale o no
+							for (int u = 0; u < beforePart.size(); u++) {
+								ArrayList listStates = beforePart.get(u);
+
+								if (!(listStates.contains(keyPair) && listStates.contains(keyPair1))) {
+									numReject++;
+								}
+
+							}
+							if (numReject == beforePart.size() && !(aux.contains((String) anyOther.getKey())))
+								aux.add((String) anyOther.getKey());
+						}
+
+					}
+					ArrayList notExit = new ArrayList<>();
+					for (int j1 = 0; j1 < listEquivalent.size(); j1++) {
+
+						if (!(aux.contains(listEquivalent.get(j1)))) {
+							notExit.add(listEquivalent.get(j1));
+						}
+
+					}
+					partition1.add(notExit);
+					if (aux.size() > 0)
+						partition1.add(aux);
+				} else {
+					partition1.add(listEquivalent);
+				}
+			}
+			// Realizar comparacion entre Pn y Pn-1
+			if (!(beforePart.size() != partition1.size()) && beforePart.size() > 0 && partition1.size() > 0) {
+				for (int k = 0; k < beforePart.size(); k++) {
+					beforePart.get(k).sort((e1, e2) -> ((String) e1).compareTo((String) e2));
+				}
+				for (int k = 0; k < partition1.size(); k++) {
+					partition1.get(k).sort((e1, e2) -> ((String) e1).compareTo((String) e2));
+				}
+				partEqual = false;
+				for (int k = 0; k < partition1.size() && !partEqual; k++) {
+					for (int k2 = 0; k2 < partition1.size(); k2++) {
+						if (partition1.get(k).get(0).equals(beforePart.get(k2).get(0))) {
+							for (int l = 0; l < partition1.get(k).size(); l++) {
+
+								if ((partition1.get(k).get(l).equals(beforePart.get(k).get(l)))) {
+									partEqual = false;
+								} else {
+									partEqual = true;
+
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		if (isMealy) {
+			ArrayList<ArrayList> mealy = generalArray.get(generalArray.size() - 1);
+			ArrayList<ArrayList> pn = new ArrayList<ArrayList>();
+			for (int i = 0; i < mealy.size() / 2; i++) {
+				mealy.get(i);
+				ArrayList<String> block = new ArrayList<String>();
+				for (int j = 0; j < mealy.get(i).size(); j++) {
+					String state = ((String) mealy.get(i).get(j)).split(",")[0];
+					block.add(state);
+				}
+				pn.add(block);
+			}
+			return pn;
+		} else {
+			return generalArray.get(generalArray.size() - 1);
+		}
+
+	}
+
+	/**
+	 * Metodos Set y Get de los atributos
+	 */	
+	
 	public boolean isMealy() {
 		return isMealy;
 	}
@@ -393,6 +528,8 @@ public class Automaton {
 		this.graph = graph;
 	}
 	
-	
+	public GrafoListaAdyacencia<String,String> getGraph() {
+		return graph;
+	}
 
 }

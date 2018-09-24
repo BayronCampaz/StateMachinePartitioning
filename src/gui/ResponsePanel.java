@@ -14,6 +14,7 @@ public class ResponsePanel extends JPanel{
 
 	private JTextField[][] matrix;
 	private JPanel panelMatrix;
+	private JLabel title;
 	
 	public ResponsePanel () {
 		
@@ -37,7 +38,7 @@ public class ResponsePanel extends JPanel{
 		for(int i = 0; i< matrix.length; i++) {
 			for(int j = 0; j < matrix[0].length; j++) {	
 				matrix[i][j] = new JTextField();
-				Font font = new Font("Segoe UI", Font.PLAIN, 35 - (Math.max(matrix.length , matrix[0].length)));
+				Font font = new Font("Segoe UI", Font.BOLD, 35 - (Math.max(matrix.length , matrix[0].length)));
 				matrix[i][j].setFont(font);
 				matrix[i][j].setText(tableState[i][j]);
 				matrix[i][j].setHorizontalAlignment(SwingConstants.CENTER);
@@ -53,7 +54,7 @@ public class ResponsePanel extends JPanel{
 			matrix[0][matrix[0].length-1].setVisible(false);
 		}
 		
-		JLabel title = new JLabel("Automata Equivalente");
+		 title = new JLabel("Automata Equivalente");
 		Font font = new Font("Segoe UI", Font.PLAIN, 35 - (Math.max(matrix.length , matrix[0].length)));
 		title.setFont(font);
 		add(title, BorderLayout.NORTH);

@@ -15,6 +15,9 @@ public class Vertice<K, V> {
 	// Objeto o atributo que se guarda en el vertice.
 	public V valor;
 
+	public boolean isInitial=false;
+
+
 	// Lista de adyacencia (lista de parejas).
 	public ArrayList<Pareja> ady;
 
@@ -102,5 +105,13 @@ public class Vertice<K, V> {
 
 	public void setDistanciaFinal(int distanciaFinal) {
 		this.distanciaFinal = distanciaFinal;
+	}
+	
+	public boolean isInitial() {
+		return isInitial;
+	}
+
+	public void setInitial(boolean isInitial) {
+		this.isInitial = isInitial;
 	}
 }

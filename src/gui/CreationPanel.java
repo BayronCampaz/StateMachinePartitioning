@@ -48,11 +48,19 @@ public class CreationPanel extends JPanel  {
 	}
 	
 	
-	public String[] getInputs() {
+	public String[] getInputs(boolean isMealy) {
 		
-		String[] response = new String[matrix[0].length-2];
+		String[] response;
+		if(isMealy) {
+			response = new String[matrix[0].length-1];
+			for(int i = 1; i< matrix[0].length; i++) {
+				response[i-1] = matrix[0][i].getText();
+			}
+		}else {
+		 response = new String[matrix[0].length-2];
 		for(int i = 1; i< matrix[0].length-1; i++) {
 			response[i-1] = matrix[0][i].getText();
+		}
 		}
 		return response;
 	}
@@ -112,7 +120,7 @@ public class CreationPanel extends JPanel  {
 		for(int i = 0; i< matrix.length; i++) {
 			for(int j = 0; j < matrix[0].length; j++) {	
 				matrix[i][j] = new JTextField();
-				Font font = new Font("Arial", Font.BOLD, 35 - (Math.max(matrix.length , matrix[0].length)));
+				Font font = new Font("Segoe UI", Font.BOLD, 35 - (Math.max(matrix.length , matrix[0].length)));
 				matrix[i][j].setFont(font);
 				matrix[i][j].setHorizontalAlignment(SwingConstants.CENTER);
 				panelMatrix.add(matrix[i][j]);					

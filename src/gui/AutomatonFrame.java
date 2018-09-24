@@ -29,7 +29,7 @@ public class AutomatonFrame extends JFrame {
 		
 		setTitle( "ACME" );
         setSize( new Dimension(1100, 720 ));
-        //automaton = new Automaton();
+       
         
 
         setResizable( false);
@@ -108,7 +108,7 @@ public class AutomatonFrame extends JFrame {
 		
 			String initialState = creationPanel.getInitialState();
 			String[][] matrix = creationPanel.getMatrix();
-			String[] inputs = creationPanel.getInputs();
+			String[] inputs = creationPanel.getInputs(currentMachine);
 
 			automaton = new Automaton(currentMachine, inputs, matrix, initialState);
 			//Conexion con clase principal debe devolver una matriz 
